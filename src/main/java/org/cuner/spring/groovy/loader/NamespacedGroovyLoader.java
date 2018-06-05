@@ -13,11 +13,11 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 import java.io.File;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -31,7 +31,7 @@ public class NamespacedGroovyLoader implements ApplicationListener<ContextRefres
 
     private List<FileSystemXmlApplicationContext> toDestoryContext;
 
-    private Map<String, Long> resourcesLastModifiedMap;
+    private ConcurrentHashMap<String, Long> resourcesLastModifiedMap;
 
     private GroovyRefreshTrigger trigger;
 
@@ -52,9 +52,9 @@ public class NamespacedGroovyLoader implements ApplicationListener<ContextRefres
                 listener = new DefaultGroovyRefreshedListener();
             }
             initLoadResources();
+            // do schedule
+            reloadScriptAndRefresh();
         }
-        // do schedule
-        reloadScriptAndRefresh();
     }
 
     private void reloadScriptAndRefresh() {
@@ -82,11 +82,11 @@ public class NamespacedGroovyLoader implements ApplicationListener<ContextRefres
             toDestoryContext = new ArrayList<FileSystemXmlApplicationContext>(this.namespacedContext.values());
         }
         this.namespacedContext = new HashMap<String, FileSystemXmlApplicationContext>();
-        this.resourcesLastModifiedMap = new HashMap<String, Long>();
+        this.resourcesLastModifiedMap = new ConcurrentHashMap<String, Long>();
         //定位资源文件路径
         String path = this.getClass().getClassLoader().getResource("").getPath();
         File groovyFileDir = new File(path + groovyResourcesDir);
-        List<File> groovyFileList = getFileListFromDir(groovyFileDir);
+        List<File> groovyFileList = getResourceListFromDir(groovyFileDir);
         for (File file : groovyFileList) {
             FileSystemXmlApplicationContext context = new FileSystemXmlApplicationContext(new String[] {file.toURI().toString()}, true, parentContext);
             this.namespacedContext.put(file.getName().replace("xml", ""), context);
@@ -103,7 +103,7 @@ public class NamespacedGroovyLoader implements ApplicationListener<ContextRefres
         }
     }
 
-    public static List<File> getFileListFromDir(File dir) {
+    public static List<File> getResourceListFromDir(File dir) {
         List<File> fileList = new ArrayList<File>();
         if (dir.isDirectory()) {
             File[] subFiles = dir.listFiles();
@@ -112,13 +112,17 @@ public class NamespacedGroovyLoader implements ApplicationListener<ContextRefres
             }
             for (File subFile : subFiles) {
                 if (subFile.isDirectory()) {
-                    fileList.addAll(getFileListFromDir(subFile));
+                    fileList.addAll(getResourceListFromDir(subFile));
                 } else {
-                    fileList.add(subFile);
+                    if (subFile.getName().endsWith(".xml")) {
+                        fileList.add(subFile);
+                    }
                 }
             }
         } else {
-            fileList.add(dir);
+            if (dir.getName().endsWith(".xml")) {
+                fileList.add(dir);
+            }
         }
         return fileList;
     }
