@@ -7,5 +7,5 @@ import java.util.Map;
  */
 public interface GroovyRefreshTrigger {
 
-    boolean isTriggered(Map<String, Long> scriptLastModifiedMap);
+    boolean isTriggered(Map<String, Long> resourcesLastModifiedMap, String groovyResourcesDir);
 }

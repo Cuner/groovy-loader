@@ -12,8 +12,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 public class Test {
 
     @org.junit.Test
-    public void test() {
+    public void test() throws Exception{
         System.out.println("loading..");
+        Thread.sleep(5 * 60 * 1000);
     }
 
 }

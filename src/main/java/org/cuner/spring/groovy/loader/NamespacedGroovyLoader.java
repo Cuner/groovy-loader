@@ -1,5 +1,6 @@
 package org.cuner.spring.groovy.loader;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.cuner.spring.groovy.loader.listener.DefaultGroovyRefreshedListener;
 import org.cuner.spring.groovy.loader.listener.GroovyRefreshedEvent;
@@ -28,6 +29,8 @@ public class NamespacedGroovyLoader implements ApplicationListener<ContextRefres
 
     private Map<String, FileSystemXmlApplicationContext> namespacedContext;
 
+    private List<FileSystemXmlApplicationContext> toDestoryContext;
+
     private Map<String, Long> resourcesLastModifiedMap;
 
     private GroovyRefreshTrigger trigger;
@@ -51,13 +54,32 @@ public class NamespacedGroovyLoader implements ApplicationListener<ContextRefres
             initLoadResources();
         }
         // do schedule
+        reloadScriptAndRefresh();
+    }
+
+    private void reloadScriptAndRefresh() {
+        new Thread() {
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        Thread.sleep(5000);
+                        if (trigger.isTriggered(resourcesLastModifiedMap, groovyResourcesDir)) {
+                            // reload
+                            Thread.sleep(3000);
+                            initLoadResources();
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }.start();
     }
 
     private void initLoadResources() {
         if (MapUtils.isNotEmpty(this.namespacedContext)) {
-            for (FileSystemXmlApplicationContext fileSystemXmlApplicationContext : this.namespacedContext.values()) {
-                fileSystemXmlApplicationContext.close();
-            }
+            toDestoryContext = new ArrayList<FileSystemXmlApplicationContext>(this.namespacedContext.values());
         }
         this.namespacedContext = new HashMap<String, FileSystemXmlApplicationContext>();
         this.resourcesLastModifiedMap = new HashMap<String, Long>();
@@ -67,15 +89,21 @@ public class NamespacedGroovyLoader implements ApplicationListener<ContextRefres
         List<File> groovyFileList = getFileListFromDir(groovyFileDir);
         for (File file : groovyFileList) {
             FileSystemXmlApplicationContext context = new FileSystemXmlApplicationContext(new String[] {file.toURI().toString()}, true, parentContext);
-            this.namespacedContext.put(file.getName(), context);
+            this.namespacedContext.put(file.getName().replace("xml", ""), context);
             this.resourcesLastModifiedMap.put(file.getName(), file.lastModified());
         }
 
         //触发监听器时间
         listener.groovyRefreshed(new GroovyRefreshedEvent(parentContext, this.namespacedContext));
+
+        if (CollectionUtils.isNotEmpty(toDestoryContext)) {
+            for (FileSystemXmlApplicationContext fileSystemXmlApplicationContext : toDestoryContext) {
+                fileSystemXmlApplicationContext.close();
+            }
+        }
     }
 
-    private List<File> getFileListFromDir(File dir) {
+    public static List<File> getFileListFromDir(File dir) {
         List<File> fileList = new ArrayList<File>();
         if (dir.isDirectory()) {
             File[] subFiles = dir.listFiles();
