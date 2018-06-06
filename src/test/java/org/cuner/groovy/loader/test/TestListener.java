@@ -1,7 +1,7 @@
-package org.cuner.spring.groovy.loader.test;
+package org.cuner.groovy.loader.test;
 
-import org.cuner.spring.groovy.loader.listener.GroovyRefreshedEvent;
-import org.cuner.spring.groovy.loader.listener.GroovyRefreshedListener;
+import org.cuner.groovy.loader.listener.GroovyRefreshedEvent;
+import org.cuner.groovy.loader.listener.GroovyRefreshedListener;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 import java.lang.reflect.Method;

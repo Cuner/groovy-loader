@@ -1,4 +1,4 @@
-package org.cuner.spring.groovy.loader.listener;
+package org.cuner.groovy.loader.listener;
 
 /**
  * Created by houan on 18/6/5.

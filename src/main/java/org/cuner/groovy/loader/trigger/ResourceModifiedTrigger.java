@@ -1,6 +1,6 @@
-package org.cuner.spring.groovy.loader.trigger;
+package org.cuner.groovy.loader.trigger;
 
-import org.cuner.spring.groovy.loader.NamespacedGroovyLoader;
+import org.cuner.groovy.loader.NamespacedGroovyLoader;
 
 import java.io.File;
 import java.util.List;

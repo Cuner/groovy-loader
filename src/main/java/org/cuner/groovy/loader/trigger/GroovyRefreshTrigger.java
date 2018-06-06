@@ -1,4 +1,4 @@
-package org.cuner.spring.groovy.loader.trigger;
+package org.cuner.groovy.loader.trigger;
 
 import java.util.Map;
 

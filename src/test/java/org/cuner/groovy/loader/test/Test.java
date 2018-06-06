@@ -1,4 +1,4 @@
-package org.cuner.spring.groovy.loader.test;
+package org.cuner.groovy.loader.test;
 
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;

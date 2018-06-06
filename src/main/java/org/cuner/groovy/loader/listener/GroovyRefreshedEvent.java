@@ -1,4 +1,4 @@
-package org.cuner.spring.groovy.loader.listener;
+package org.cuner.groovy.loader.listener;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
