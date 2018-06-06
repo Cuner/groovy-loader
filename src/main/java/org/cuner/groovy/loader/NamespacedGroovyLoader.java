@@ -2,6 +2,7 @@ package org.cuner.groovy.loader;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.cuner.groovy.loader.listener.DefaultGroovyRefreshedListener;
 import org.cuner.groovy.loader.listener.GroovyRefreshedEvent;
 import org.cuner.groovy.loader.listener.GroovyRefreshedListener;
@@ -84,8 +85,10 @@ public class NamespacedGroovyLoader implements ApplicationListener<ContextRefres
         this.namespacedContext = new HashMap<String, FileSystemXmlApplicationContext>();
         this.resourcesLastModifiedMap = new ConcurrentHashMap<String, Long>();
         //定位资源文件路径
-        String path = this.getClass().getClassLoader().getResource("").getPath();
-        File groovyFileDir = new File(path + groovyResourcesDir);
+        if (StringUtils.isBlank(groovyResourcesDir)) {
+            groovyResourcesDir = this.getClass().getClassLoader().getResource("").getPath() + "/spring/groovy";
+        }
+        File groovyFileDir = new File(groovyResourcesDir);
         List<File> groovyFileList = getResourceListFromDir(groovyFileDir);
         for (File file : groovyFileList) {
             FileSystemXmlApplicationContext context = new FileSystemXmlApplicationContext(new String[] {file.toURI().toString()}, true, parentContext);

@@ -1,5 +1,6 @@
 package org.cuner.groovy.loader.trigger;
 
+import org.apache.commons.lang3.StringUtils;
 import org.cuner.groovy.loader.NamespacedGroovyLoader;
 
 import java.io.File;
@@ -11,8 +12,10 @@ import java.util.Map;
  */
 public class ResourceModifiedTrigger implements GroovyRefreshTrigger {
     public boolean isTriggered(Map<String, Long> resourcesLastModifiedMap, String groovyResourcesDir) {
-        String path = this.getClass().getClassLoader().getResource("").getPath();
-        File groovyFileDir = new File(path + groovyResourcesDir);
+        if (StringUtils.isBlank(groovyResourcesDir)) {
+            groovyResourcesDir = this.getClass().getClassLoader().getResource("").getPath() + "/spring/groovy";
+        }
+        File groovyFileDir = new File(groovyResourcesDir);
         List<File> groovyFileList = NamespacedGroovyLoader.getResourceListFromDir(groovyFileDir);
         for (File file : groovyFileList) {
             //新增

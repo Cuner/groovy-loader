@@ -8,7 +8,7 @@
     <bean id="trigger" class="org.cuner.groovy.loader.trigger.ResourceModifiedTrigger"/>
     <bean id="listener" class="org.cuner.groovy.loader.test.TestListener"/>
     <bean id="groovyLoader" class="org.cuner.groovy.loader.NamespacedGroovyLoader">
-        <property name="groovyResourcesDir" value="/spring"/>
+        <!--<property name="groovyResourcesDir" value="/Users/xiaoqiao/myworkspace/groovy-loader/target/test-classes/spring/groovy"/>-->
         <property name="listener" ref="listener"/>
         <property name="trigger" ref="trigger"/>
     </bean>
